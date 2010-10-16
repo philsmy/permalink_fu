@@ -83,10 +83,46 @@ module PermalinkFu
         before_validation :create_common_permalink
       end
 
-      define_method :"#{self.permalink_field}=" do |value|
-        write_attribute(self.permalink_field, value.blank? ? '' : PermalinkFu.escape(value))
+      # define_method :"#{self.permalink_field}=" do |value|
+      #   write_attribute(self.permalink_field, value.blank? ? '' : PermalinkFu.escape(value))
+      # end
+
+      evaluate_attribute_method permalink_field, "def #{self.permalink_field}=(new_value);write_attribute(:#{self.permalink_field}, PermalinkFu.escape(new_value));end", "#{self.permalink_field}="
+      extend  PermalinkFinders
+
+      case options[:param]
+      when false
+        # nothing
+      when :permalink
+        include ToParam
+      else
+        include ToParamWithID
       end
 
+    end
+  end
+  module ToParam
+    def to_param
+      send(self.class.read_inheritable_attribute(:permalink_field))
+    end
+  end
+  
+  module ToParamWithID
+    def to_param
+      permalink = send(self.class.read_inheritable_attribute(:permalink_field))
+      return super if new_record? || permalink.blank?
+      "#{id}-#{permalink}"
+    end
+  end
+  
+  module PermalinkFinders
+    def find_by_permalink(value)
+      find(:first, :conditions => { permalink_field => value  })
+    end
+    
+    def find_by_permalink!(value)
+      find_by_permalink(value) ||
+      raise(ActiveRecord::RecordNotFound, "Couldn't find #{name} with permalink #{value.inspect}")
     end
   end
 
