@@ -103,13 +103,13 @@ module PermalinkFu
   end
   module ToParam
     def to_param
-      send(self.class.read_inheritable_attribute(:permalink_field))
+      read_attribute(self.class.permalink_field)
     end
   end
   
   module ToParamWithID
     def to_param
-      permalink = send(self.class.read_inheritable_attribute(:permalink_field))
+      permalink = read_attribute(self.class.permalink_field)
       return super if new_record? || permalink.blank?
       "#{id}-#{permalink}"
     end
