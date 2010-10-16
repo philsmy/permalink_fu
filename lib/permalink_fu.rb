@@ -83,11 +83,11 @@ module PermalinkFu
         before_validation :create_common_permalink
       end
 
-      # define_method :"#{self.permalink_field}=" do |value|
-      #   write_attribute(self.permalink_field, value.blank? ? '' : PermalinkFu.escape(value))
-      # end
+      define_method :"#{self.permalink_field}=" do |value|
+        write_attribute(self.permalink_field, value.blank? ? '' : PermalinkFu.escape(value))
+      end
 
-      evaluate_attribute_method permalink_field, "def #{self.permalink_field}=(new_value);write_attribute(:#{self.permalink_field}, PermalinkFu.escape(new_value));end", "#{self.permalink_field}="
+      # evaluate_attribute_method permalink_field, "def #{self.permalink_field}=(new_value);write_attribute(:#{self.permalink_field}, PermalinkFu.escape(new_value));end", "#{self.permalink_field}="
       extend  PermalinkFinders
 
       case options[:param]
